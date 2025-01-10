@@ -10,6 +10,7 @@ import {
   Query,
   Req,
   SetMetadata,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -25,6 +26,9 @@ import { UserPayloadDto } from 'src/auth/dto/token-payload.dto';
 import { RoutePolicyGuard } from 'src/auth/guard/route-policy.guard';
 import { SetRoutePolicy } from 'src/auth/decorator/set-route-policy.decorator';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @UseGuards(AuthTokenGuard)
 @Controller('post')
@@ -48,8 +52,34 @@ export class PostController {
   }
 
   @Post('/:id/image')
-  saveImage() {
-    return true;
+  @UseInterceptors(FileInterceptor('file'))
+  saveImage(
+    @Param('id', ParseIntPipe) id,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const fileExtension = path
+      .extname(file.originalname)
+      .toLocaleLowerCase()
+      .substring(1);
+
+    const fileName = `${id}.${fileExtension}`;
+    const fileFullPath = path.resolve(process.cwd(), 'storage', fileName);
+    const storageDir = path.resolve(process.cwd(), 'storage');
+
+    if (!fs.existsSync(storageDir)) {
+      fs.mkdirSync(storageDir, { recursive: true });
+    }
+
+    fs.writeFileSync(fileFullPath, file.buffer);
+
+    return {
+      fileName,
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      buffer: {},
+      size: file.size,
+    };
   }
 
   @Post('/')

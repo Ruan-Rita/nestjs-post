@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   HttpException,
   HttpStatus,
@@ -26,13 +27,12 @@ export class UserService {
     });
 
     if (alreadyExist) {
-      throw new HttpException('Email has been used', HttpStatus.CONFLICT);
+      throw new ConflictException('Email has already been used');
     }
     const data = {
       ...createUserDto,
       password: await this.hashService.hash(createUserDto.password),
     };
-    console.log('Insert usert values', data);
 
     const newUser = this.userRepository.create(data);
     await this.userRepository.save(newUser);
