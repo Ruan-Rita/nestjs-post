@@ -31,7 +31,6 @@ export class RoutePolicyGuard implements CanActivate {
       );
     }
     const user: User = userPaylaod.user;
-    console.log('USER', user);
 
     if (!user.routePolicies.includes(policy)) {
       throw new ForbiddenException('User do not have permission in this route');

@@ -8,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   SetMetadata,
   UploadedFile,
   UseGuards,
@@ -20,7 +19,6 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { AddHeaderInterceptor } from 'src/common/interceptors/add-header.interceptor';
 import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
-import { REQUEST_USER_PAYLOAD } from 'src/auth/auth.constant';
 import { UserPayloadParam } from 'src/auth/params/user-payload-param.params';
 import { UserPayloadDto } from 'src/auth/dto/token-payload.dto';
 import { RoutePolicyGuard } from 'src/auth/guard/route-policy.guard';
@@ -44,10 +42,7 @@ export class PostController {
   }
 
   @Get(':id')
-  findPost(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-    const userPayload = req[REQUEST_USER_PAYLOAD];
-    console.log('testes', userPayload);
-
+  findPost(@Param('id', ParseIntPipe) id: number) {
     return this.postService.findById(id);
   }
 
